@@ -40,5 +40,6 @@ var otpInput string
 fmt.Print("Enter OTP: ")
 fmt.Scanln(&otpInput)
 
+// * Send the code back through the channel to the iClient
 iclient.OtpChannel <- otpInput
 ```
