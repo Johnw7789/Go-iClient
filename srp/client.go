@@ -41,7 +41,7 @@ func NewSRPClient(param *SRPParams, a []byte) *SRPClient {
 	}
 }
 
-// ProcessClientChanllenge username,password,salt,B  计算K 和M1
+// * ProcessClientChanllenge username, password, salt, B 
 func (kls *SRPClient) ProcessClientChanllenge(username, password, salt, B []byte) {
 	c := kls
 	c.X = c.Params.calculateX(salt, username, password)
