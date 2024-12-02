@@ -7,7 +7,7 @@ import (
 
 	b64 "encoding/base64"
 
-	"github.com/Johnw7789/go-icloud/srp"
+	"github.com/Johnw7789/iCloud-HME-Gen/srp"
 )
 
 // * LoginInit() handles the login process up to the point of trusting the device

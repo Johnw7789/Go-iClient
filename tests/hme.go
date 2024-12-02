@@ -3,7 +3,7 @@ package tests
 import (
 	"fmt"
 
-	"github.com/Johnw7789/go-icloud/icloud"
+	"github.com/Johnw7789/iCloud-HME-Gen/icloud"
 )
 
 func TestHME() {

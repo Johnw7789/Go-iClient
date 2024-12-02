@@ -1,4 +1,4 @@
-module github.com/Johnw7789/go-icloud
+module github.com/Johnw7789/iCloud-HME-Gen
 
 go 1.17
 
