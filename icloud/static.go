@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	ProtocolVersion  = "QH5B2"
-	OAuthClientID = "d39ba9916b7251055b22c7f910e2ea796ee65e98b2ddecea8f5dde8d9d1a815d"
+	ProtocolVersion = "QH5B2"
+	OAuthClientID   = "d39ba9916b7251055b22c7f910e2ea796ee65e98b2ddecea8f5dde8d9d1a815d"
 )
 
 const (
@@ -31,16 +31,22 @@ var (
 type endpoint uint8
 
 const (
-	authStart endpoint = 1 + iota
+	iTunesConnect endpoint = 1 + iota
+	authStart
 	authFederate
 	authInit
 	authComplete
 	authOptions
 	submitSecurityCode
 	trust
-	hmeAuth
+	authWeb
+
+	hmeList
 	hmeGen
 	hmeReserve
+	hmeDeactivate
+	hmeReactivate
+	hmeDelete
 )
 
 var endpoints = map[endpoint]string{
@@ -51,9 +57,14 @@ var endpoints = map[endpoint]string{
 	authOptions:        "https://idmsa.apple.com/appleauth/auth",
 	submitSecurityCode: "https://idmsa.apple.com/appleauth/auth/verify/%s/securitycode", // code type, typically trusteddevice
 	trust:              "https://idmsa.apple.com/appleauth/auth/2sv/trust",
-	hmeAuth:            "https://setup.icloud.com/setup/ws/1/accountLogin?clientBuildNumber=2415Hotfix24&clientMasteringNumber=2415Hotfix24",
-	hmeGen:             "https://p52-maildomainws.icloud.com/v1/hme/generate?clientBuildNumber=2415Project29&clientMasteringNumber=2415B20",
-	hmeReserve:         "https://p52-maildomainws.icloud.com/v1/hme/reserve?clientBuildNumber=2415Project29&clientMasteringNumber=2415B20",
+	authWeb:            "https://setup.icloud.com/setup/ws/1/accountLogin",
+
+	hmeList:       "https://p52-maildomainws.icloud.com/v2/hme/list?clientBuildNumber=2426Hotfix51&clientMasteringNumber=2426Hotfix51",
+	hmeGen:        "https://p52-maildomainws.icloud.com/v1/hme/generate?clientBuildNumber=2415Project29&clientMasteringNumber=2415B20",
+	hmeReserve:    "https://p52-maildomainws.icloud.com/v1/hme/reserve?clientBuildNumber=2415Project29&clientMasteringNumber=2415B20",
+	hmeDeactivate: "https://p52-maildomainws.icloud.com/v1/hme/deactivate?clientBuildNumber=2426Hotfix10&clientMasteringNumber=2426Hotfix10",
+	hmeReactivate: "https://p52-maildomainws.icloud.com/v1/hme/reactivate?clientBuildNumber=2426Hotfix10&clientMasteringNumber=2426Hotfix10",
+	hmeDelete:     "https://p52-maildomainws.icloud.com/v1/hme/delete?clientBuildNumber=2426Hotfix10&clientMasteringNumber=2426Hotfix10",
 }
 
 // updateRequestHeaders updates required request headers.
