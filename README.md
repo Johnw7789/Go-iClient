@@ -13,7 +13,7 @@ Please note that email generation is limited to 5 emails per hour, and up to 750
 | Mail |:hammer:|
 | Find My |:hammer:| 
 | Photos ||
-| iCLoud Drive ||
+| iCloud Drive ||
 
 ## Installation
 ``go get github.com/Johnw7789/Go-iClient``
