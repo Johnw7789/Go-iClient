@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Johnw7789/iCloud-HME-Gen/icloud"
+	"github.com/Johnw7789/Go-iClient/icloud"
 )
 
 // * Anonymous Id for reactivation/deactivation/deletion can be retrieved from the HmeEmail struct as part of the HMEListResp struct

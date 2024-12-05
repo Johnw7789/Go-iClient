@@ -1,6 +1,6 @@
-module github.com/Johnw7789/iCloud-HME-Gen
+module github.com/Johnw7789/Go-iClient
 
-go 1.17
+go 1.18
 
 require (
 	github.com/bogdanfinn/fhttp v0.5.28

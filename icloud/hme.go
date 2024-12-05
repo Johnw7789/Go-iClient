@@ -14,13 +14,13 @@ import (
 
 // * RetrieveHMEList() Retrieves a list of HMEs from the user's account
 func (c *Client) RetrieveHMEList() ([]HmeEmail, error) {
-	resp, err := c.reqRetrieveHMEList()
+	body, err := c.reqRetrieveHMEList()
 	if err != nil {
 		return nil, err
 	}
 
 	var hmeListResp HMEListResp
-	err = json.Unmarshal([]byte(resp), &hmeListResp)
+	err = json.Unmarshal([]byte(body), &hmeListResp)
 	if err != nil {
 		return nil, err
 	}
@@ -40,32 +40,32 @@ func (c *Client) ReserveHME(label, note string) (string, error) {
 
 // * DeactivateHME() Deactivates an HME from the user's account, using the given anonymousId. Can be reactivated later
 func (c *Client) DeactivateHME(anonymousId string) (bool, error) {
-	resp, err := c.reqDeactivateHME(anonymousId)
+	body, err := c.reqDeactivateHME(anonymousId)
 	if err != nil {
 		return false, err
 	}
 
-	return gjson.Get(resp, "success").Bool(), nil
+	return gjson.Get(body, "success").Bool(), nil
 }
 
 // * ReactivateHME() Reactivates an HME for a user's account, using the given anonymousId
 func (c *Client) ReactivateHME(anonymousId string) (bool, error) {
-	resp, err := c.reqReactivateHME(anonymousId)
+	body, err := c.reqReactivateHME(anonymousId)
 	if err != nil {
 		return false, err
 	}
 
-	return gjson.Get(resp, "success").Bool(), nil
+	return gjson.Get(body, "success").Bool(), nil
 }
 
 // * DeleteHME() Deletes an HME from the user's account, using the given anonymousId. Can not be recovered later
 func (c *Client) DeleteHME(anonymousId string) (bool, error) {
-	resp, err := c.reqDeleteHME(anonymousId)
+	body, err := c.reqDeleteHME(anonymousId)
 	if err != nil {
 		return false, err
 	}
 
-	return gjson.Get(resp, "success").Bool(), nil
+	return gjson.Get(body, "success").Bool(), nil
 }
 
 func (c *Client) reqRetrieveHMEList() (string, error) {

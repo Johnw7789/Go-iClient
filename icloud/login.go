@@ -8,7 +8,7 @@ import (
 
 	b64 "encoding/base64"
 
-	"github.com/Johnw7789/iCloud-HME-Gen/srp"
+	"github.com/Johnw7789/Go-iClient/srp"
 	http "github.com/bogdanfinn/fhttp"
 )
 

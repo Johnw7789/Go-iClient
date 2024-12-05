@@ -47,6 +47,13 @@ const (
 	hmeDeactivate
 	hmeReactivate
 	hmeDelete
+
+	mailInbox
+	mailMetadataGet
+	mailGet
+	mailDelete
+	mailDraft
+	mailSend
 )
 
 var endpoints = map[endpoint]string{
@@ -65,6 +72,13 @@ var endpoints = map[endpoint]string{
 	hmeDeactivate: "https://p52-maildomainws.icloud.com/v1/hme/deactivate?clientBuildNumber=2426Hotfix10&clientMasteringNumber=2426Hotfix10",
 	hmeReactivate: "https://p52-maildomainws.icloud.com/v1/hme/reactivate?clientBuildNumber=2426Hotfix10&clientMasteringNumber=2426Hotfix10",
 	hmeDelete:     "https://p52-maildomainws.icloud.com/v1/hme/delete?clientBuildNumber=2426Hotfix10&clientMasteringNumber=2426Hotfix10",
+
+	mailInbox:       "https://p52-mccgateway.icloud.com/mailws2/v1/thread/search?clientBuildNumber=2426Hotfix40&clientMasteringNumber=2426Hotfix40",
+	mailMetadataGet: "https://p52-mccgateway.icloud.com/mailws2/v1/thread/get?clientBuildNumber=2426Hotfix40&clientMasteringNumber=2426Hotfix40",
+	mailGet:         "https://p52-mccgateway.icloud.com/mailws2/v1/message/get?clientBuildNumber=2426Hotfix40&clientMasteringNumber=2426Hotfix40",
+	mailDelete:      "https://p52-mailws.icloud.com/wm/message?clientBuildNumber=2426Hotfix40&clientMasteringNumber=2426Hotfix40",
+	mailDraft:       "https://p52-mailws.icloud.com/wm/message?clientBuildNumber=2426Hotfix40&clientMasteringNumber=2426Hotfix40",
+	mailSend:        "https://p52-mccgateway.icloud.com/mailws2/v1/draft/send?clientBuildNumber=2426Hotfix40&clientMasteringNumber=2426Hotfix40",
 }
 
 // updateRequestHeaders updates required request headers.
