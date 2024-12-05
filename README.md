@@ -21,6 +21,7 @@ Please note that HME email generation is limited to 5 emails per hour, and up to
 ## Authentication
 
 ### Initializing an iCloud Client & Login
+In this example we are waiting for a OTP from user input from the console. However, this could be implemented in other ways. For example, if using this package as part of a project with a UI, a popup input modal could be opened to wait for the OTP, and then send the OTP back through the channel to the thread. 
 ```
 // * Create a new iClient with account username and password, do not sniff with local proxy
 iclient, err := icloud.NewClient("username", "password", false)
@@ -38,12 +39,10 @@ go func() {
 	// do stuff after auth here e.g. gen hme, fetch mail etc
 }()
 
-// * Wait for OTP, in this example we wait for a user to input it
 var otpInput string
 fmt.Print("Enter OTP: ")
 fmt.Scanln(&otpInput)
 
-// * Send the code back through the channel to the iClient
 iclient.OtpChannel <- otpInput
 ```
 ## Usage
@@ -62,7 +61,6 @@ if err != nil {
 
 ### Retrieving all HME emails
 ```
-// * Get all HME emails for the user
 emails, err := iclient.RetrieveHMEList()
 if err != nil {
 	log.Fatal(err)
@@ -74,11 +72,10 @@ for _, email := range emails {
 ```
 
 ### Deactivating an HME email
+The anonymous ID is used for reactivation/deactivation/deletion and can be retrieved from the HmeEmail struct as part of the HMEListResp struct.
 ```
-// * Anonymous Id for reactivation/deactivation/deletion can be retrieved from the HmeEmail struct as part of the HMEListResp struct
-anonymousId := "id_here"
+anonymousId := "anonymousId"
 
-// * Deactivate the HME email
 success, err := iclient.DeactivateHME(anonymousId)
 if err != nil {
 	log.Fatal(err)
@@ -87,7 +84,6 @@ if err != nil {
 
 ### Reactivating an HME email
 ```
-// * Reactivate the HME email
 success, err = iclient.ReactivateHME(anonymousId)
 if err != nil {
 	log.Fatal(err)
@@ -95,8 +91,8 @@ if err != nil {
 ```
 
 ### Deleting an HME email
+In order to delete an email it first must be deactivated. 
 ```
-// * In order to delete we must first deactive the HME email
 success, err = iclient.DeactivateHME(anonymousId)
 if err != nil {
 	log.Fatal(err)
@@ -147,10 +143,16 @@ for _, part := range message.Parts {
 ```
 
 ### Deleting an email 
+The UID can only be obtained from the mail metadata, which is why you must get the message metadata first. 
 ```
-uid := "uid"
+threadId := "threadId"
 
-success, err := iclient.DeleteMail(uid)
+mailMetadata, err := iclient.GetMessageMetadata(threadId)
+if err != nil {
+	log.Fatal(err)
+}
+
+success, err := iclient.DeleteMail(mailMetadata.UID)
 if err != nil {
 	log.Fatal(err)
 }
