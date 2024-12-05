@@ -107,7 +107,7 @@ if err != nil {
 ### Retrieving the mail inbox
 ```
 maxResults := 50
-beforeTimestamp := 0 // if set to 0, it will be exluded from the query and set as a blank string
+beforeTimestamp := 0 // if set to 0, it will not be used in the query and instead set as a blank string
 
 mailResponse, err := iclient.RetrieveMailInbox(maxResults, beforeTimestamp)
 if err != nil {
