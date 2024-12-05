@@ -48,7 +48,7 @@ iclient.OtpChannel <- otpInput
 ## Usage
 
 ### Generating an HME email
-```
+```Go
 label := "email 123"
 note := "this email is a test email"
 
@@ -60,7 +60,7 @@ if err != nil {
 ```
 
 ### Retrieving all HME emails
-```
+```Go
 emails, err := iclient.RetrieveHMEList()
 if err != nil {
 	log.Fatal(err)
@@ -73,7 +73,7 @@ for _, email := range emails {
 
 ### Deactivating an HME email
 The anonymous ID is used for reactivation/deactivation/deletion and can be retrieved from the HmeEmail struct as part of the HMEListResp struct.
-```
+```Go
 anonymousId := "anonymousId"
 
 success, err := iclient.DeactivateHME(anonymousId)
@@ -83,7 +83,7 @@ if err != nil {
 ```
 
 ### Reactivating an HME email
-```
+```Go
 success, err = iclient.ReactivateHME(anonymousId)
 if err != nil {
 	log.Fatal(err)
@@ -92,7 +92,7 @@ if err != nil {
 
 ### Deleting an HME email
 In order to delete an email it first must be deactivated. 
-```
+```Go
 success, err = iclient.DeactivateHME(anonymousId)
 if err != nil {
 	log.Fatal(err)
@@ -105,7 +105,7 @@ if err != nil {
 ```
 
 ### Retrieving the mail inbox
-```
+```Go
 maxResults := 50
 beforeTimestamp := 0 // if set to 0, it will not be used in the query and instead set as a blank string
 
@@ -123,7 +123,7 @@ for _, message := range mailResponse.ThreadList {
 ```
 
 ### Retrieving an individual message
-```
+```Go
 threadId := "threadId"
 
 mailMetadata, err := iclient.GetMessageMetadata(threadId)
@@ -144,7 +144,7 @@ for _, part := range message.Parts {
 
 ### Deleting an email 
 The UID can only be obtained from the mail metadata, which is why you must get the message metadata first. 
-```
+```Go
 threadId := "threadId"
 
 mailMetadata, err := iclient.GetMessageMetadata(threadId)
@@ -159,7 +159,7 @@ if err != nil {
 ```
 
 ### Sending an email 
-```
+```Go
 fromEmail := "test@icloud.com"
 toEmail := "test@icloud.com"
 subject := "Test Email"
