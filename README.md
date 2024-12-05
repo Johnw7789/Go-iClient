@@ -22,7 +22,7 @@ Please note that HME email generation is limited to 5 emails per hour, and up to
 
 ### Initializing an iCloud Client & Login
 In this example we are waiting for a OTP from user input from the console. However, this could be implemented in other ways. For example, if using this package as part of a project with a UI, a popup input modal could be opened to wait for the OTP, and then send the OTP back through the channel to the thread. 
-```
+```Go
 // * Create a new iClient with account username and password, do not sniff with local proxy
 iclient, err := icloud.NewClient("username", "password", false)
 if err != nil {
