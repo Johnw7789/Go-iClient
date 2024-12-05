@@ -104,7 +104,7 @@ if err != nil {
 }
 ```
 
-#### Retrieving the mail inbox
+### Retrieving the mail inbox
 ```
 maxResults := 50
 beforeTimestamp := 0 // if set to 0, it will be exluded from the query and set as a blank string
