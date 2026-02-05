@@ -8,13 +8,14 @@ import (
 
 	b64 "encoding/base64"
 
-	"github.com/Johnw7789/Go-iClient/srp"
+	"github.com/Johnw7789/Go-iClient/internal/srp"
 	http "github.com/bogdanfinn/fhttp"
 )
 
-// * Login() logs in to iCloud and authenticates the user to access any iCloud web app/service
-func (c *Client) Login() error {
-	err := c.loginInit()
+// Login logs in to iCloud and authenticates the user to access any iCloud web app/service.
+// The otpProvider callback is called when two-factor authentication is required.
+func (c *Client) Login(otpProvider OTPProvider) error {
+	err := c.loginInit(otpProvider)
 	if err != nil {
 		return err
 	}
@@ -27,8 +28,8 @@ func (c *Client) Login() error {
 	return c.authenticateWeb()
 }
 
-// * loginInit() handles the login process up to the point of trusting the device
-func (c *Client) loginInit() error {
+// loginInit handles the login process up to the point of trusting the device.
+func (c *Client) loginInit(otpProvider OTPProvider) error {
 	err := c.authStart()
 	if err != nil {
 		return err
@@ -68,7 +69,7 @@ func (c *Client) loginInit() error {
 	// * Process the challenge using the server provided salt and B
 	client.ProcessClientChanllenge([]byte(c.Username), passKey, saltDec, bDec)
 
-	return c.authComplete(c.Username, authInitResp.C, b64.StdEncoding.EncodeToString(client.M1), b64.StdEncoding.EncodeToString(client.M2))
+	return c.authComplete(c.Username, authInitResp.C, b64.StdEncoding.EncodeToString(client.M1), b64.StdEncoding.EncodeToString(client.M2), otpProvider)
 }
 
 // * getTrust() Gets the trust and auth tokens, allowing for completing user authentication for iCloud web services

@@ -5,10 +5,12 @@ import (
 	"github.com/bogdanfinn/tls-client/profiles"
 )
 
+// OTPProvider is a callback function that prompts for and returns a 2FA code.
+// It is called during Login when two-factor authentication is required.
+type OTPProvider func() (string, error)
+
 type Client struct {
 	HttpClient tls_client.HttpClient
-
-	OtpChannel chan string
 
 	Username string
 	Password string
@@ -44,7 +46,6 @@ func NewClient(username, password string, sniff bool) (*Client, error) {
 
 	return &Client{
 		HttpClient: client,
-		OtpChannel: make(chan string),
 		Username:   username,
 		Password:   password,
 	}, nil

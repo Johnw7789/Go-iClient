@@ -108,8 +108,8 @@ func (c *Client) authInit(A, email string) (AuthInitResp, error) {
 	return authInitResp, nil
 }
 
-// * Complete the authentication process and send the SRP data, as well as email
-func (c *Client) authComplete(email, C, M1, M2 string) error {
+// authComplete completes the authentication process and sends the SRP data.
+func (c *Client) authComplete(email, C, M1, M2 string, otpProvider OTPProvider) error {
 	var body io.Reader
 
 	reqBody := AuthCompleteReq{
@@ -155,7 +155,7 @@ func (c *Client) authComplete(email, C, M1, M2 string) error {
 
 	case 409:
 		// what we typically want to see. This is a 2FA or 2SA challenge
-		return c.handleTwoFactor(resp)
+		return c.handleTwoFactor(resp, otpProvider)
 
 	case 412:
 		return ErrRequiredPrivacyAck
@@ -168,13 +168,13 @@ func (c *Client) authComplete(email, C, M1, M2 string) error {
 	}
 }
 
-// * handleTwoFactor handles Two Factor authentication
-func (c *Client) handleTwoFactor(signinResp *http.Response) error {
+// handleTwoFactor handles Two Factor authentication.
+func (c *Client) handleTwoFactor(signinResp *http.Response, otpProvider OTPProvider) error {
 	// extract `X-Apple-Id-Session-Id` and `scnt` from response
 	c.sessionID = signinResp.Header.Get(HdrXAppleIDSessionID)
 	c.scnt = signinResp.Header.Get(HdrScnt)
 
-	// // get authentication options
+	// get authentication options
 	req, err := http.NewRequest(http.MethodGet, endpoints[authOptions], nil)
 	if err != nil {
 		return err
@@ -188,12 +188,15 @@ func (c *Client) handleTwoFactor(signinResp *http.Response) error {
 	}
 	defer resp.Body.Close()
 
-	return c.submitTwoFactor()
+	return c.submitTwoFactor(otpProvider)
 }
 
-// * Uses the client OTP channel to wait for and then submit the 2FA code
-func (c *Client) submitTwoFactor() (err error) {
-	otp := <-c.OtpChannel
+// submitTwoFactor calls the OTP provider and submits the 2FA code.
+func (c *Client) submitTwoFactor(otpProvider OTPProvider) error {
+	otp, err := otpProvider()
+	if err != nil {
+		return fmt.Errorf("failed to get OTP: %w", err)
+	}
 
 	var body io.Reader
 	var codeType string
