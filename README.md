@@ -11,7 +11,7 @@ Please note that HME email generation is limited to 5 emails per hour, and up to
 |:---:|:---:|
 | Hide My Email |`✔`|
 | Mail |`✔`|
-| Find My |:hammer:| 
+| Find My |`✔`|
 | Photos |:hammer:|
 | iCloud Drive ||
 
@@ -158,7 +158,7 @@ if err != nil {
 }
 ```
 
-### Sending an email 
+### Sending an email
 ```Go
 fromEmail := "test@icloud.com"
 toEmail := "test@icloud.com"
@@ -176,4 +176,48 @@ success, err := iclient.SendDraft(uid)
 if err != nil {
 	log.Fatal(err)
 }
+```
+
+### Fetching all Find My devices
+Includes all devices on the account and family sharing members.
+```Go
+devices, err := iclient.GetDevices()
+if err != nil {
+	log.Fatal(err)
+}
+
+for _, d := range devices {
+	fmt.Printf("[%s] %s — %s\n", d.DeviceClass, d.Name, d.DeviceDisplayName)
+}
+```
+
+### Fetching a single device
+```Go
+device, err := iclient.GetDevice(deviceID)
+if err != nil {
+	log.Fatal(err)
+}
+```
+
+### Playing a sound on a device
+Pass `nil` for the channels argument on iPhone, Watch, and Mac. For AirPods and other multi-channel accessories pass the channel names.
+```Go
+// iPhone, Watch, Mac
+updated, err := iclient.PlaySound(deviceID, nil)
+
+// AirPods
+updated, err := iclient.PlaySound(deviceID, []string{"left", "right"})
+```
+
+### Keeping the session alive
+`KeepAlive` blocks and calls the iCloud session validate endpoint on the given interval. Run it in a goroutine. It returns `ErrSessionExpired` if the session dies, or `ctx.Err()` if cancelled.
+```Go
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+
+go func() {
+	if err := iclient.KeepAlive(ctx, 5*time.Minute); err != nil {
+		log.Println("session expired:", err)
+	}
+}()
 ```

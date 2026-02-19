@@ -8,12 +8,14 @@ import (
 )
 
 func main() {
+	// client := newClient("username", "password")
+
 	// Uncomment the example you want to run
-	// ReserveHME()
-	// RetrieveHMEList()
-	// DeactivateHME()
-	// ReactivateHME()
-	// DeleteHME()
+	// RetrieveHMEList(client)
+	// ReserveHME(client, "My Label", "optional note")
+	// DeactivateHME(client, "anonymous-id")
+	// ReactivateHME(client, "anonymous-id")
+	// DeleteHME(client, "anonymous-id")
 }
 
 func promptOTP() (string, error) {
@@ -23,41 +25,18 @@ func promptOTP() (string, error) {
 	return otp, nil
 }
 
-func ReserveHME() {
-	client, err := icloud.NewClient("username", "password", true)
+func newClient(username, password string) *icloud.Client {
+	client, err := icloud.NewClient(username, password, false)
 	if err != nil {
 		panic(err)
 	}
-
 	if err := client.Login(promptOTP); err != nil {
 		panic(err)
 	}
-
-	label := "email 123"
-	note := "this email is a test email"
-
-	hme, err := client.ReserveHME(label, note)
-	if err != nil {
-		panic(err)
-	}
-
-	if !strings.Contains(hme, "@") {
-		panic("Invalid email address")
-	}
-
-	fmt.Println("Reserved HME:", hme)
+	return client
 }
 
-func RetrieveHMEList() {
-	client, err := icloud.NewClient("username", "password", true)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := client.Login(promptOTP); err != nil {
-		panic(err)
-	}
-
+func RetrieveHMEList(client *icloud.Client) {
 	emails, err := client.RetrieveHMEList()
 	if err != nil {
 		panic(err)
@@ -68,19 +47,21 @@ func RetrieveHMEList() {
 	}
 }
 
-func DeactivateHME() {
-	client, err := icloud.NewClient("username", "password", true)
+func ReserveHME(client *icloud.Client, label, note string) {
+	hme, err := client.ReserveHME(label, note)
 	if err != nil {
 		panic(err)
 	}
 
-	if err := client.Login(promptOTP); err != nil {
-		panic(err)
+	if !strings.Contains(hme, "@") {
+		panic("invalid email address returned")
 	}
 
-	anonymousId := ""
+	fmt.Println("Reserved HME:", hme)
+}
 
-	success, err := client.DeactivateHME(anonymousId)
+func DeactivateHME(client *icloud.Client, anonymousID string) {
+	success, err := client.DeactivateHME(anonymousID)
 	if err != nil {
 		panic(err)
 	}
@@ -88,19 +69,8 @@ func DeactivateHME() {
 	fmt.Println("HME deactivation success:", success)
 }
 
-func ReactivateHME() {
-	client, err := icloud.NewClient("username", "password", true)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := client.Login(promptOTP); err != nil {
-		panic(err)
-	}
-
-	anonymousId := ""
-
-	success, err := client.ReactivateHME(anonymousId)
+func ReactivateHME(client *icloud.Client, anonymousID string) {
+	success, err := client.ReactivateHME(anonymousID)
 	if err != nil {
 		panic(err)
 	}
@@ -108,19 +78,8 @@ func ReactivateHME() {
 	fmt.Println("HME reactivation success:", success)
 }
 
-func DeleteHME() {
-	client, err := icloud.NewClient("username", "password", true)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := client.Login(promptOTP); err != nil {
-		panic(err)
-	}
-
-	anonymousId := ""
-
-	success, err := client.DeleteHME(anonymousId)
+func DeleteHME(client *icloud.Client, anonymousID string) {
+	success, err := client.DeleteHME(anonymousID)
 	if err != nil {
 		panic(err)
 	}

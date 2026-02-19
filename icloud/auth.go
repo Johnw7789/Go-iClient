@@ -2,12 +2,14 @@ package icloud
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/url"
 	"strings"
+	"time"
 
 	http "github.com/bogdanfinn/fhttp"
 	"github.com/google/uuid"
@@ -188,6 +190,11 @@ func (c *Client) handleTwoFactor(signinResp *http.Response, otpProvider OTPProvi
 	}
 	defer resp.Body.Close()
 
+	// Apple returns an updated scnt on every response; it must be forwarded on the next request.
+	if newScnt := resp.Header.Get(HdrScnt); newScnt != "" {
+		c.scnt = newScnt
+	}
+
 	return c.submitTwoFactor(otpProvider)
 }
 
@@ -264,9 +271,30 @@ func (c *Client) authenticateWeb() error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	// Parse dsid and service URLs for use in subsequent service calls.
+	var accountResp struct {
+		DsInfo struct {
+			Dsid string `json:"dsid"`
+		} `json:"dsInfo"`
+		Webservices struct {
+			Account struct {
+				URL string `json:"url"`
+			} `json:"account"`
+			Findme struct {
+				URL string `json:"url"`
+			} `json:"findme"`
+		} `json:"webservices"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&accountResp); err == nil {
+		c.dsid = accountResp.DsInfo.Dsid
+		c.accountURL = accountResp.Webservices.Account.URL
+		c.findMeURL = accountResp.Webservices.Findme.URL
 	}
 
 	// for each cookie under idmsa.apple.com, set it for icloud.com as well
@@ -276,5 +304,111 @@ func (c *Client) authenticateWeb() error {
 	cookies := c.HttpClient.GetCookies(u)
 	c.HttpClient.SetCookies(u2, cookies)
 
+	// Make a second accountLogin to the partition-specific setup server with the dsid.
+	// This binds the iCloud session to the user's assigned partition and elevates
+	// access for partition-local services like Find My. Without this step, fmipservice
+	// returns 450 (re-auth required) even with a valid generic iCloud session.
+	if c.accountURL != "" && c.dsid != "" {
+		if err := c.authenticateWebPartition(); err != nil {
+			// Non-fatal: basic iCloud session still works; Find My may require re-auth.
+			_ = err
+		}
+	}
+
 	return nil
+}
+
+// authenticateWebPartition performs a second accountLogin to the user's partition-specific
+// setup server (e.g. p52-setup.icloud.com) with the dsid. This is required to elevate
+// the session for partition-local services such as Find My (fmipservice).
+func (c *Client) authenticateWebPartition() error {
+	partitionURL := fmt.Sprintf(
+		"%s/setup/ws/1/accountLogin?clientBuildNumber=2602Build17&clientMasteringNumber=2602Build17&clientId=%s&dsid=%s",
+		c.accountURL, c.frameId, c.dsid,
+	)
+
+	body := bytes.NewReader([]byte(fmt.Sprintf(`{"dsWebAuthToken":"%s","accountCountryCode":"USA"}`, c.authToken)))
+
+	req, err := http.NewRequest(http.MethodPost, partitionURL, body)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set(HdrContentType, "application/json")
+	req.Header.Set("origin", "https://www.icloud.com")
+	req.Header.Set("accept", "*/*")
+
+	resp, err := c.HttpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("partition accountLogin: unexpected status code: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
+// ValidateSession checks whether the current iCloud session is still valid.
+// Returns true if the session is active, false if it has expired.
+// Call Login() again if this returns false.
+func (c *Client) ValidateSession() (bool, error) {
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf(endpoints[authValidate], c.frameId, c.dsid), nil)
+	if err != nil {
+		return false, err
+	}
+
+	req.Header.Set("origin", "https://www.icloud.com")
+	req.Header.Set("referer", "https://www.icloud.com/")
+	req.Header.Set(HdrAccept, "*/*")
+
+	resp, err := c.HttpClient.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return false, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result struct {
+		Success bool `json:"success"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return false, err
+	}
+
+	return result.Success, nil
+}
+
+// KeepAlive keeps the iCloud session alive by calling ValidateSession on the
+// given interval. It blocks until the context is cancelled or the session expires.
+// Intended to be run in a goroutine:
+//
+//	go func() {
+//	    if err := client.KeepAlive(ctx, 5*time.Minute); err != nil {
+//	        // session expired — call Login() again
+//	    }
+//	}()
+func (c *Client) KeepAlive(ctx context.Context, interval time.Duration) error {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-ticker.C:
+			valid, err := c.ValidateSession()
+			if err != nil {
+				return err
+			}
+			if !valid {
+				return ErrSessionExpired
+			}
+		}
+	}
 }

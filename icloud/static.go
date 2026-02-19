@@ -26,6 +26,8 @@ var (
 	ErrUnexpectedSigninResponse  = errors.New("unexpected sign in response")
 	ErrNotImplemented            = errors.New("not implemented")
 	ErrSeverErrorOrInvalidCreds  = errors.New("apple server error or invalid credentials")
+	ErrFindMySessionExpired      = errors.New("find my session expired: please call Login() again")
+	ErrSessionExpired            = errors.New("icloud session expired: please call Login() again")
 )
 
 type endpoint uint8
@@ -40,6 +42,7 @@ const (
 	submitSecurityCode
 	trust
 	authWeb
+	authValidate
 
 	hmeList
 	hmeGen
@@ -65,6 +68,7 @@ var endpoints = map[endpoint]string{
 	submitSecurityCode: "https://idmsa.apple.com/appleauth/auth/verify/%s/securitycode", // code type, typically trusteddevice
 	trust:              "https://idmsa.apple.com/appleauth/auth/2sv/trust",
 	authWeb:            "https://setup.icloud.com/setup/ws/1/accountLogin",
+	authValidate:       "https://setup.icloud.com/setup/ws/1/validate?clientBuildNumber=2602Build17&clientMasteringNumber=2602Build17&clientId=%s&dsid=%s",
 
 	hmeList:       "https://p52-maildomainws.icloud.com/v2/hme/list?clientBuildNumber=2426Hotfix51&clientMasteringNumber=2426Hotfix51",
 	hmeGen:        "https://p52-maildomainws.icloud.com/v1/hme/generate?clientBuildNumber=2415Project29&clientMasteringNumber=2415B20",

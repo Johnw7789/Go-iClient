@@ -7,11 +7,13 @@ import (
 )
 
 func main() {
+	// client := newClient("username", "password")
+
 	// Uncomment the example you want to run
-	// RetrieveInbox()
-	// RetrieveMessage()
-	// DeleteMessage()
-	// SendMail()
+	// RetrieveInbox(client)
+	// RetrieveMessage(client, "thread-id")
+	// DeleteMessage(client, "uid")
+	// SendMail(client, "from@icloud.com", "to@example.com", "Subject", "plain text body", "<b>html body</b>")
 }
 
 func promptOTP() (string, error) {
@@ -21,47 +23,38 @@ func promptOTP() (string, error) {
 	return otp, nil
 }
 
-func RetrieveInbox() {
-	client, err := icloud.NewClient("email", "password", true)
+func newClient(username, password string) *icloud.Client {
+	client, err := icloud.NewClient(username, password, false)
 	if err != nil {
 		panic(err)
 	}
-
 	if err := client.Login(promptOTP); err != nil {
 		panic(err)
 	}
+	return client
+}
 
+func RetrieveInbox(client *icloud.Client) {
 	mailResponse, err := client.RetrieveMailInbox(50, 0)
 	if err != nil {
 		panic(err)
 	}
 
-	for _, message := range mailResponse.ThreadList {
-		fmt.Println(message.Senders)
-		fmt.Println(message.Subject)
-		fmt.Println(message.ThreadID)
+	for _, thread := range mailResponse.ThreadList {
+		fmt.Println(thread.Senders)
+		fmt.Println(thread.Subject)
+		fmt.Println(thread.ThreadID)
 		fmt.Println()
 	}
 }
 
-func RetrieveMessage() {
-	client, err := icloud.NewClient("email", "password", true)
+func RetrieveMessage(client *icloud.Client, threadID string) {
+	metadata, err := client.GetMessageMetadata(threadID)
 	if err != nil {
 		panic(err)
 	}
 
-	if err := client.Login(promptOTP); err != nil {
-		panic(err)
-	}
-
-	threadId := "threadId"
-
-	mailMetadata, err := client.GetMessageMetadata(threadId)
-	if err != nil {
-		panic(err)
-	}
-
-	message, err := client.GetMessage(mailMetadata.UID)
+	message, err := client.GetMessage(metadata.UID)
 	if err != nil {
 		panic(err)
 	}
@@ -71,48 +64,22 @@ func RetrieveMessage() {
 	}
 }
 
-func DeleteMessage() {
-	client, err := icloud.NewClient("email", "password", true)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := client.Login(promptOTP); err != nil {
-		panic(err)
-	}
-
-	uid := "uid"
-
+func DeleteMessage(client *icloud.Client, uid string) {
 	success, err := client.DeleteMail(uid)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Email message deletion success:", success)
+	fmt.Println("Email deletion success:", success)
 }
 
-func SendMail() {
-	client, err := icloud.NewClient("email", "password", true)
+func SendMail(client *icloud.Client, from, to, subject, textBody, htmlBody string) {
+	uid, err := client.DraftMail(from, to, subject, textBody, htmlBody)
 	if err != nil {
 		panic(err)
 	}
 
-	if err := client.Login(promptOTP); err != nil {
-		panic(err)
-	}
-
-	fromEmail := "test@icloud.com"
-	toEmail := "test@icloud.com"
-	subject := "Test Email"
-	textBody := "This is a test email"
-	body := "<html><body><h1>This is a test email</h1></body></html>"
-
-	uid, err := client.DraftMail(fromEmail, toEmail, subject, textBody, body)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("Email draft uid:", uid)
+	fmt.Println("Draft UID:", uid)
 
 	success, err := client.SendDraft(uid)
 	if err != nil {

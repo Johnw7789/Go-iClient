@@ -1,6 +1,8 @@
 package icloud
 
 import (
+	"encoding/json"
+
 	tls_client "github.com/bogdanfinn/tls-client"
 	"github.com/bogdanfinn/tls-client/profiles"
 )
@@ -23,6 +25,12 @@ type Client struct {
 	serviceKey string
 	sessionID  string
 	scnt       string
+
+	// iCloud partition state (populated after Login)
+	accountURL  string // partition-specific setup URL, e.g. https://p52-setup.icloud.com:443
+	findMeURL   string
+	dsid        string
+	fmServerCtx json.RawMessage
 }
 
 // * NewClient intializes a new http client and returns a new icloud client

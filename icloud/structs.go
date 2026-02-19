@@ -1,5 +1,7 @@
 package icloud
 
+import "encoding/json"
+
 type AuthInitResp struct {
 	Iteration int    `json:"iteration"`
 	Salt      string `json:"salt"`
@@ -153,6 +155,116 @@ type Params struct {
 	Attachments        []any  `json:"attachments"`
 	WebmailClientBuild string `json:"webmailClientBuild"`
 }
+
+// ---- Find My ----
+
+// FMDeviceFeatures maps feature flag codes (e.g. "SND", "LCK", "WIP") to their enabled state.
+type FMDeviceFeatures map[string]bool
+
+// FMAudioChannel represents a single audio channel on an AirPods device.
+type FMAudioChannel struct {
+	Name      string `json:"name"`
+	Available int    `json:"available"`
+	Playing   bool   `json:"playing"`
+	Muted     bool   `json:"muted"`
+}
+
+// FMSndStatus is the status of a play-sound command on a device.
+type FMSndStatus struct {
+	AlertText           string `json:"alertText"`
+	CancelButtonTitle   string `json:"cancelButtonTitle"`
+	ContinueButtonTitle string `json:"continueButtonTitle"`
+	CreateTimestamp     int64  `json:"createTimestamp"`
+	StatusCode          string `json:"statusCode"`
+	AlertTitle          string `json:"alertTitle"`
+}
+
+// FMMsgStatus is the status of a message/alert command on a device.
+type FMMsgStatus struct {
+	Vibrate         bool   `json:"vibrate"`
+	Strobe          bool   `json:"strobe"`
+	UserText        bool   `json:"userText"`
+	PlaySound       bool   `json:"playSound"`
+	CreateTimestamp int64  `json:"createTimestamp"`
+	StatusCode      string `json:"statusCode"`
+}
+
+// FMLostDevice holds lost-mode details when a device is in lost mode.
+type FMLostDevice struct {
+	StopLostMode    bool   `json:"stopLostMode"`
+	EmailUpdates    bool   `json:"emailUpdates"`
+	UserText        bool   `json:"userText"`
+	Sound           bool   `json:"sound"`
+	OwnerNbr        string `json:"ownerNbr"`
+	Text            string `json:"text"`
+	Email           string `json:"email"`
+	CreateTimestamp int64  `json:"createTimestamp"`
+	StatusCode      string `json:"statusCode"`
+}
+
+// FMDevice represents a single device returned by the Find My service.
+type FMDevice struct {
+	ID                   string           `json:"id"`
+	Name                 string           `json:"name"`
+	DeviceDisplayName    string           `json:"deviceDisplayName"`
+	DeviceClass          string           `json:"deviceClass"`
+	DeviceModel          string           `json:"deviceModel"`
+	RawDeviceModel       string           `json:"rawDeviceModel"`
+	ModelDisplayName     string           `json:"modelDisplayName"`
+	DeviceColor          string           `json:"deviceColor"`
+	DeviceStatus         string           `json:"deviceStatus"`
+	BatteryLevel         *float64         `json:"batteryLevel"`
+	BatteryStatus        *string          `json:"batteryStatus"`
+	LocationCapable      bool             `json:"locationCapable"`
+	LocationEnabled      bool             `json:"locationEnabled"`
+	IsLocating           bool             `json:"isLocating"`
+	LostModeCapable      bool             `json:"lostModeCapable"`
+	LostModeEnabled      bool             `json:"lostModeEnabled"`
+	ActivationLocked     bool             `json:"activationLocked"`
+	PasscodeLength       int              `json:"passcodeLength"`
+	CanWipeAfterLock     bool             `json:"canWipeAfterLock"`
+	WipeInProgress       bool             `json:"wipeInProgress"`
+	IsMac                bool             `json:"isMac"`
+	ThisDevice           bool             `json:"thisDevice"`
+	FmlyShare            bool             `json:"fmlyShare"`
+	LowPowerMode         bool             `json:"lowPowerMode"`
+	DeviceWithYou        bool             `json:"deviceWithYou"`
+	PendingRemove        bool             `json:"pendingRemove"`
+	DarkWake             bool             `json:"darkWake"`
+	MaxMsgChar           int              `json:"maxMsgChar"`
+	BaUUID               string           `json:"baUUID"`
+	DeviceDiscoveryId    string           `json:"deviceDiscoveryId"`
+	CommandLookupId      string           `json:"commandLookupId"`
+	LostTimestamp        string           `json:"lostTimestamp"`
+	BrassStatus          string           `json:"brassStatus"`
+	Features             FMDeviceFeatures `json:"features"`
+	AudioChannels        []FMAudioChannel `json:"audioChannels"`
+	Snd                  *FMSndStatus     `json:"snd"`
+	Msg                  *FMMsgStatus     `json:"msg"`
+	LostDevice           *FMLostDevice    `json:"lostDevice"`
+	Location             interface{}      `json:"location"`
+	TrackingInfo         interface{}      `json:"trackingInfo"`
+	RemoteWipe           interface{}      `json:"remoteWipe"`
+	RemoteLock           interface{}      `json:"remoteLock"`
+	WipedTimestamp       interface{}      `json:"wipedTimestamp"`
+	LockedTimestamp      interface{}      `json:"lockedTimestamp"`
+	RepairStatus         interface{}      `json:"repairStatus"`
+	EncodedDeviceId      interface{}      `json:"encodedDeviceId"`
+	PrsId                interface{}      `json:"prsId"`
+}
+
+// FMDevicesResp is the response envelope from refreshClient and playSound.
+// ServerContext is stored raw so it can be echoed back verbatim in subsequent requests.
+type FMDevicesResp struct {
+	UserInfo        json.RawMessage `json:"userInfo"`
+	Alert           interface{}     `json:"alert"`
+	ServerContext   json.RawMessage `json:"serverContext"`
+	Content         []FMDevice      `json:"content"`
+	UserPreferences json.RawMessage `json:"userPreferences"`
+	StatusCode      string          `json:"statusCode"`
+}
+
+// ---- Find My end ----
 
 type Message struct {
 	GUID           string         `json:"guid"`
