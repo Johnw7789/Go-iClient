@@ -12,8 +12,9 @@ Please note that HME email generation is limited to 5 emails per hour, and up to
 | Hide My Email |`✔`|
 | Mail |`✔`|
 | Find My |`✔`|
+| Contacts |`✔`|
 | Photos |:hammer:|
-| iCloud Drive ||
+| iCloud Drive |:hammer:|
 
 ## Installation
 ``go get github.com/Johnw7789/Go-iClient``
@@ -220,4 +221,62 @@ go func() {
 		log.Println("session expired:", err)
 	}
 }()
+```
+
+### Fetching all contacts
+GetContacts automatically initializes the contacts session on first call.
+```Go
+contacts, err := iclient.GetContacts()
+if err != nil {
+	log.Fatal(err)
+}
+
+for _, c := range contacts {
+	fmt.Printf("%s %s\n", c.FirstName, c.LastName)
+}
+```
+
+### Fetching a single contact
+```Go
+contact, err := iclient.GetContact(contactID)
+if err != nil {
+	log.Fatal(err)
+}
+```
+
+### Creating a contact
+```Go
+newContact := icloud.Contact{
+	FirstName: "John",
+	LastName:  "Doe",
+	Emails: []icloud.ContactEmail{
+		{Label: "HOME", Field: "john@example.com"},
+	},
+	Phones: []icloud.ContactPhone{
+		{Label: "MOBILE", Field: "+1234567890"},
+	},
+}
+
+created, err := iclient.CreateContact(newContact)
+if err != nil {
+	log.Fatal(err)
+}
+```
+
+### Updating a contact
+Requires the contact's current etag to prevent concurrent modification conflicts.
+```Go
+contact.FirstName = "Jane"
+updated, err := iclient.UpdateContact(contact)
+if err != nil {
+	log.Fatal(err)
+}
+```
+
+### Deleting a contact
+```Go
+err := iclient.DeleteContact(contactID, etag)
+if err != nil {
+	log.Fatal(err)
+}
 ```

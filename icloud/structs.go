@@ -266,6 +266,69 @@ type FMDevicesResp struct {
 
 // ---- Find My end ----
 
+// ---- Contacts ----
+
+type ContactPhone struct {
+	Label string `json:"label"`
+	Field string `json:"field"`
+}
+
+type ContactEmail struct {
+	Label string `json:"label"`
+	Field string `json:"field"`
+}
+
+type ContactAddress struct {
+	Label      string `json:"label,omitempty"`
+	Street     string `json:"street,omitempty"`
+	City       string `json:"city,omitempty"`
+	State      string `json:"state,omitempty"`
+	PostalCode string `json:"postalCode,omitempty"`
+	Country    string `json:"country,omitempty"`
+}
+
+type ContactURL struct {
+	Label string `json:"label"`
+	Field string `json:"field"`
+}
+
+type Contact struct {
+	ContactID   string           `json:"contactId,omitempty"`
+	Etag        string           `json:"etag,omitempty"`
+	FirstName   string           `json:"firstName,omitempty"`
+	LastName    string           `json:"lastName,omitempty"`
+	MiddleName  string           `json:"middleName,omitempty"`
+	NamePrefix  string           `json:"namePrefix,omitempty"`
+	NameSuffix  string           `json:"nameSuffix,omitempty"`
+	Nickname    string           `json:"nickname,omitempty"`
+	Phones      []ContactPhone   `json:"phones,omitempty"`
+	Emails      []ContactEmail   `json:"emails,omitempty"`
+	Addresses   []ContactAddress `json:"addresses,omitempty"`
+	URLs        []ContactURL     `json:"urls,omitempty"`
+	Birthday    string           `json:"birthday,omitempty"`
+	CompanyName string           `json:"companyName,omitempty"`
+	JobTitle    string           `json:"jobTitle,omitempty"`
+	Department  string           `json:"department,omitempty"`
+	Notes       string           `json:"notes,omitempty"`
+	IsCompany   bool             `json:"isCompany"`
+}
+
+type ContactsStartupResp struct {
+	Contacts      []Contact `json:"contacts"`
+	SyncToken     string    `json:"syncToken"`
+	PrefToken     string    `json:"prefToken"`
+	ContactsOrder []string  `json:"contactsOrder"`
+	MeCardId      string    `json:"meCardId"`
+}
+
+type ContactsResponse struct {
+	Contacts  []Contact `json:"contacts"`
+	SyncToken string    `json:"syncToken,omitempty"`
+	PrefToken string    `json:"prefToken,omitempty"`
+}
+
+// ---- Contacts end ----
+
 type Message struct {
 	GUID           string         `json:"guid"`
 	LongHeader     string         `json:"longHeader"`

@@ -289,12 +289,16 @@ func (c *Client) authenticateWeb() error {
 			Findme struct {
 				URL string `json:"url"`
 			} `json:"findme"`
+			Contacts struct {
+				URL string `json:"url"`
+			} `json:"contacts"`
 		} `json:"webservices"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&accountResp); err == nil {
 		c.dsid = accountResp.DsInfo.Dsid
 		c.accountURL = accountResp.Webservices.Account.URL
 		c.findMeURL = accountResp.Webservices.Findme.URL
+		c.contactsURL = accountResp.Webservices.Contacts.URL
 	}
 
 	// for each cookie under idmsa.apple.com, set it for icloud.com as well

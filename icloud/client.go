@@ -31,6 +31,11 @@ type Client struct {
 	findMeURL   string
 	dsid        string
 	fmServerCtx json.RawMessage
+
+	// Contacts module state
+	contactsURL string
+	syncToken   string
+	prefToken   string
 }
 
 // * NewClient intializes a new http client and returns a new icloud client

@@ -28,6 +28,7 @@ var (
 	ErrSeverErrorOrInvalidCreds  = errors.New("apple server error or invalid credentials")
 	ErrFindMySessionExpired      = errors.New("find my session expired: please call Login() again")
 	ErrSessionExpired            = errors.New("icloud session expired: please call Login() again")
+	ErrContactEtagMismatch = errors.New("contact etag mismatch: contact was modified")
 )
 
 type endpoint uint8
